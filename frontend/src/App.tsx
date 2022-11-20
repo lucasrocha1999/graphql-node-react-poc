@@ -1,4 +1,5 @@
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql, useMutation } from '@apollo/client';
+import { Button } from './components/Button';
 import { NewUserForm } from './components/NewUserForm';
 
 type User = {
@@ -15,17 +16,40 @@ export const GET_USERS = gql`
   }
 `
 
-function App() {
-  const { data, loading } = useQuery<{users: User[]}>(GET_USERS)
+const DELETE_USER = gql`
+    mutation ($id: String!) {
+      deleteUser(id: $id)
+    }
+`
 
-  if (loading) {
-    return <p>Carregando...</p>
+const App: React.FC = () => {
+  const { data, loading } = useQuery<{users: User[]}>(GET_USERS)
+  const [deleteUser] = useMutation(DELETE_USER)
+
+  if (loading) return <p>Carregando...</p>
+
+  const handleDeleteUser = async (id: string) => {
+    await deleteUser({
+      variables: {
+        id,
+      },
+      refetchQueries: [GET_USERS],
+    })
   }
 
   return (
    <div>
       <ul>
-        {data?.users.map(user => <li key={user.id}>{user.name}</li>)}
+        {data?.users.map(user => 
+          <li key={user.id}>
+            {user.name}{" "}
+            <Button
+              id={user.id}
+              buttonName="Deletar"
+              onDeleteUser={handleDeleteUser}
+            />
+          </li>
+        )}
       </ul>
       <NewUserForm />
    </div>

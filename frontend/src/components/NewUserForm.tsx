@@ -12,7 +12,7 @@ const CREATE_USER = gql`
     }
 `
 
-export function NewUserForm() {
+export const NewUserForm: React.FC = () => {
     const [name, setName] =  useState('')
     const [createUser, { data, loading, error }] = useMutation(CREATE_USER)
 
